@@ -1,19 +1,17 @@
 from bson.json_util import dumps
-import pymongo
-
-from cachetools import cached, TTLCache
 
 import flask
 from flask import request
 
+from services import prescriptions
+
+import logging
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger("addPrescription")
 
 app = flask.Flask(__name__)
 app.config['DEBUG'] = True
 
-
-client = pymongo.MongoClient("mongodb://localhost:27017/")
-db = client.prescriptions
-prescriptionsDb = db.prescriptions
 
 #[POST] - /prescriptions
 #  Validate clinic, physician and patient ids, save metrics and
@@ -50,42 +48,24 @@ prescriptionsDb = db.prescriptions
 #   }
 # }
 @app.route('/prescriptions', methods=['POST'])
-def savePrescription():
-    prescriptionData = request.json
+def addPrescription():
+    try:
+        logger.debug('Getting prescription data from POST')
+        prescriptionData = request.json
+        logger.debug('Prescription data: %s. Saving prescription.', prescriptionData)
 
-    clinic = getClinic(prescriptionData["clinic"]["id"])
-    physician = getPhysician(prescriptionData["physician"]["id"])
-    patient = getPatient(prescriptionData["patient"]["id"])
+        entry = prescriptions.savePrescription(prescriptionData)
+        logger.debug('Prescription saved: %s', entry)
 
-    saveMetrics(clinic, physician, patient)
+        return dumps({"data": entry})
 
-    entry = savePrescription(prescriptionData)
-
-    return dumps({"data": entry})
-
-
-@cached(cache=TTLCache(maxsize=10000, ttl=259200))
-def getClinic(id):
-    return id
-
-
-@cached(cache=TTLCache(maxsize=10000, ttl=172800))
-def getPhysician(id):
-    return id
-
-
-@cached(cache=TTLCache(maxsize=10000, ttl=43200))
-def getPatient(id):
-    return id
-
-
-def saveMetrics(clinic, physician, patient):
-    pass
-
-
-def savePrescription(prescription):
-    savedId = prescriptionsDb.insert_one(prescription).inserted_id
-    return prescriptionsDb.find_one({"_id": savedId})
-
+    except:
+        logger.exception('Error executing the service')
+        return dumps({
+            "error": {
+                "message": "generic error",
+                "code": "99"
+            }
+        })
 
 app.run()
