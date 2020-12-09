@@ -3,10 +3,14 @@ from bson.json_util import dumps
 import flask
 from flask import request
 
+import logging
+
 from services import prescriptions
 
-import logging
+from exceptions import PrescriptionsException
+
 logging.basicConfig(level=logging.DEBUG)
+
 logger = logging.getLogger("addPrescription")
 
 app = flask.Flask(__name__)
@@ -59,13 +63,22 @@ def addPrescription():
 
         return dumps({"data": entry})
 
-    except:
-        logger.exception('Error executing the service')
+    except PrescriptionsException as exc:
+        logger.exception('Application error executing the service')
         return dumps({
             "error": {
-                "message": "generic error",
+                "message": exc.message,
+                "code": exc.code
+            }
+        })
+    except:
+        logger.exception('Unknown error executing the service')
+        return dumps({
+            "error": {
+                "message": "application error",
                 "code": "99"
             }
         })
+
 
 app.run()
