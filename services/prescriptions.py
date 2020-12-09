@@ -2,6 +2,8 @@ import pymongo
 
 import logging
 
+import jsonschema
+
 from utils import database
 
 from services import clinics, physicians, patients, metrics
@@ -13,9 +15,43 @@ logger = logging.getLogger(__name__)
 db = database.getDb()
 prescriptionsCol = db.prescriptions
 
+prescriptionsSchema = {
+    "type" : "object",
+    "properties": {
+        "clinic": {
+            "type": "object",
+            "properties": {
+                "id": {"type": "integer"}
+            },
+            "required": ["id"]
+        },
+        "physician": {
+            "type": "object",
+            "properties": {
+                "id": {"type": "integer"}
+            },
+            "required": ["id"]
+        },
+        "patient": {
+            "type": "object",
+            "properties": {
+                "id": {"type": "integer"}
+            },
+            "required": ["id"]
+        },
+        "text": {"type": "string"}
+    },
+    "required": ["clinic", "physician", "patient", "text"]
+}
+
 
 def validatePrescriptionData(prescription):
-    return True
+    try:
+        jsonschema.validate(instance=prescription, schema=prescriptionsSchema)
+        return True
+    except:
+        logger.exception("Error in prescription schema validation")
+        return False
 
 def savePrescription(prescription):
     logger.debug('Validating prescription data')

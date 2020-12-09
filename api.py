@@ -9,9 +9,9 @@ from services import prescriptions
 
 from exceptions import PrescriptionsException
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(format='%(asctime)s|%(name)s|%(levelname)s|%(message)s',level=logging.DEBUG)
 
-logger = logging.getLogger("addPrescription")
+logger = logging.getLogger(__name__)
 
 app = flask.Flask(__name__)
 app.config['DEBUG'] = True
@@ -61,24 +61,24 @@ def addPrescription():
         entry = prescriptions.savePrescription(prescriptionData)
         logger.debug('Prescription saved: %s', entry)
 
-        return dumps({"data": entry})
+        return dumps({"data": entry}), 201
 
     except PrescriptionsException as exc:
         logger.exception('Application error executing the service')
         return dumps({
             "error": {
                 "message": exc.message,
-                "code": exc.code
+                "code": "{:02d}".format(exc.code)
             }
-        })
+        }), exc.httpstatus
     except:
         logger.exception('Unknown error executing the service')
         return dumps({
             "error": {
                 "message": "application error",
-                "code": "99"
+                "code": "{:02d}".format(99)
             }
-        })
+        }), 500
 
 
 app.run()
