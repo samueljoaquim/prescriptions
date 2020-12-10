@@ -33,6 +33,6 @@ def doPostJsonRequest(url,data,retries,timeout,bearerToken):
     request.headers.update({"Content-Type": "application/json"})
     request.headers.update({"Authorization": "Bearer "+bearerToken})
     response = request.post(url, timeout=timeout, data=data)
-    if(response.status_code == 200):
+    if(response.status_code == 201):
         data = response.json()
     return response.status_code, data

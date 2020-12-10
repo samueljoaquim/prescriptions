@@ -24,7 +24,7 @@ def saveMetrics(rid, metricsData):
     try:
         metricsResponse = None
         status_code, response = saveMetricsRequest(metricsData)
-        if(status_code == 200):
+        if(status_code == 201):
             metricsResponse = response
             return metricsResponse
         else:

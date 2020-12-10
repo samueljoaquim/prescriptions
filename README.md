@@ -11,10 +11,10 @@ The root of the project is structured as follows:
 ```
 prescriptions
 ├── app
-│   ├── Pipfile
-│   ├── Pipfile.lock
 │   ├── api.py
 │   ├── exceptions.py
+│   ├── Pipfile
+│   ├── Pipfile.lock
 │   ├── models
 │   │   ├── __init__.py
 │   │   └── schemas.py
@@ -35,13 +35,15 @@ prescriptions
 │   │   ├── test_prescriptions.py
 │   │   └── test_utils.py
 │   └── utils
-│       ├── __init__.py
+│       ├── __init__.py
 │       ├── database.py
 │       └── requestsession.py
 ├── docker-compose.dev.env
 ├── docker-compose.yml
 ├── Dockerfile
-└── README.md
+├── Pipfile
+├── README.md
+└── sourceenv.sh
 ```
 
 The *app* directory contains the application itself. The *api.py* file is the main application, that executes the Flask server and acts as the controller. *services* contains all internal services (*prescriptions.py*) and external APIs calls (all other modules). *models* contains the schemas to validate inputs and outputs for the services. *tests* contains the unit tests. *utils* contains useful functions that are shared by several modules.
