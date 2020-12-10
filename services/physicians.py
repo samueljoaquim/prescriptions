@@ -10,9 +10,12 @@ from utils import requestsession
 
 from exceptions import PhysicianNotFoundException, PhysiciansNotAvailableException
 
-logger = logging.getLogger(__name__)
 
-@cached(cache=TTLCache(maxsize=10000, ttl=172800))
+logger = logging.getLogger(__name__)
+physicianCache = TTLCache(maxsize=10000, ttl=172800)
+
+
+@cached(physicianCache)
 def getPhysician(id):
     #Get config values from env vars
     endpoint = os.getenv('PRESCRIPTIONS_ENDPOINT', 'https://5f71da6964a3720016e60ff8.mockapi.io/v1')
@@ -25,7 +28,7 @@ def getPhysician(id):
     try:
         physician = None
         logger.debug("Requesting physician data with id %d", id)
-        request = requestsession.getSession(retries, bearerToken)
+        request = requestsession.getSession(retries)
         request.headers.update({"Content-Type": "application/json"})
         request.headers.update({"Authorization": "Bearer "+bearerToken})
         response = request.get(endpoint+path.format(id=id), timeout=timeout)
@@ -38,3 +41,7 @@ def getPhysician(id):
         raise exc
     except:
         raise PhysiciansNotAvailableException()
+
+
+def clearPhysicianCache():
+    physicianCache.clear()

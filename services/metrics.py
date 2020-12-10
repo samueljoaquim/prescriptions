@@ -37,7 +37,7 @@ def saveMetrics(clinic, physician, patient):
 
         metricsResponse = None
         logger.debug("Posting metrics to server")
-        request = requestsession.getSession(retries, bearerToken)
+        request = requestsession.getSession(retries)
         request.headers.update({"Content-Type": "application/json"})
         request.headers.update({"Authorization": "Bearer "+bearerToken})
         response = request.post(endpoint+path.format(id=id), timeout=timeout, data=metricsData)

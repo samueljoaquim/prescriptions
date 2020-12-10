@@ -11,8 +11,10 @@ from utils import requestsession
 from exceptions import PatientNotFoundException, PatientsNotAvailableException
 
 logger = logging.getLogger(__name__)
+patientCache = TTLCache(maxsize=10000, ttl=43200)
 
-@cached(cache=TTLCache(maxsize=10000, ttl=43200))
+
+@cached(patientCache)
 def getPatient(id):
     #Get config values from env vars
     endpoint = os.getenv('PRESCRIPTIONS_ENDPOINT', 'https://5f71da6964a3720016e60ff8.mockapi.io/v1')
@@ -25,7 +27,7 @@ def getPatient(id):
     try:
         patient = None
         logger.debug("Requesting patient data with id %d", id)
-        request = requestsession.getSession(retries, bearerToken)
+        request = requestsession.getSession(retries)
         request.headers.update({"Content-Type": "application/json"})
         request.headers.update({"Authorization": "Bearer "+bearerToken})
         response = request.get(endpoint+path.format(id=id), timeout=timeout)
@@ -38,3 +40,7 @@ def getPatient(id):
         raise exc
     except:
         raise PatientsNotAvailableException()
+
+
+def clearPatientCache():
+    patientCache.clear()

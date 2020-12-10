@@ -9,6 +9,8 @@ pymongo = "*"
 cachetools = "*"
 requests = "*"
 jsonschema = "*"
+nose = "*"
+coverage = "*"
 
 [dev-packages]
 

@@ -12,9 +12,6 @@ from exceptions import MalformedRequestException
 
 logger = logging.getLogger(__name__)
 
-db = database.getDb()
-prescriptionsCol = db.prescriptions
-
 prescriptionsSchema = {
     "type" : "object",
     "properties": {
@@ -75,5 +72,7 @@ def savePrescription(prescription):
     logger.debug("Metrics information: %s", metricsInfo)
 
     logger.debug('Saving prescription on the database')
+    db = database.getDb()
+    prescriptionsCol = db.prescriptions
     savedId = prescriptionsCol.insert_one(prescription).inserted_id
     return prescriptionsCol.find_one({"_id": savedId})

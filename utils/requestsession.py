@@ -3,7 +3,7 @@ from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
 
 
-def getSession(retries, bearerToken):
+def getSession(retries):
     session = requests.Session()
     retryConfig = Retry(
         total=retries,
