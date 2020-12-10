@@ -1,0 +1,25 @@
+version: '3'
+
+services:
+  prescriptionssvc:
+    env_file:
+      - docker-compose.dev.env
+    image: prescriptions:latest
+    ports:
+      - "5000:5000"
+    networks:
+      prescriptions_net:
+        aliases:
+        - prescriptionssvc
+  
+  prescriptionsdb:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    networks:
+      prescriptions_net:
+        aliases:
+        - prescriptionsdb
+
+networks:
+  prescriptions_net:

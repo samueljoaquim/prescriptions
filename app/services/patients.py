@@ -17,11 +17,11 @@ patientCache = TTLCache(maxsize=10000, ttl=43200)
 
 
 #Config variables
-endpoint = os.getenv('PRESCRIPTIONS_ENDPOINT', 'https://5f71da6964a3720016e60ff8.mockapi.io/v1')
-bearerToken = os.getenv('PRESCRIPTIONS_PATIENT_TOKEN', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJzZXJ2aWNlIjoicGF0aWVudHMifQ.Pr6Z58GzNRtjX8Y09hEBzl7dluxsGiaxGlfzdaphzVU')
-timeout = int(os.getenv('PRESCRIPTIONS_PATIENT_TIMEOUT', '3'))
-retries = int(os.getenv('PRESCRIPTIONS_PATIENT_RETRIES', '2'))
-getPatientPath = os.getenv('PRESCRIPTIONS_PATIENT_PATH', '/patients/{id}')
+endpoint = os.getenv('PRESCRIPTIONS_ENDPOINT')
+bearerToken = os.getenv('PRESCRIPTIONS_PATIENT_TOKEN')
+timeout = int(os.getenv('PRESCRIPTIONS_PATIENT_TIMEOUT'))
+retries = int(os.getenv('PRESCRIPTIONS_PATIENT_RETRIES'))
+getPatientPath = os.getenv('PRESCRIPTIONS_PATIENT_PATH')
 
 
 def getPatient(rid, id):

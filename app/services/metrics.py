@@ -13,11 +13,11 @@ logger.setLevel(logging.DEBUG)
 
 
 #Config variables
-endpoint = os.getenv('PRESCRIPTIONS_ENDPOINT', 'https://5f71da6964a3720016e60ff8.mockapi.io/v1')
-bearerToken = os.getenv('PRESCRIPTIONS_METRICS_TOKEN', 'SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c')
-timeout = int(os.getenv('PRESCRIPTIONS_METRICS_TIMEOUT', '6'))
-retries = int(os.getenv('PRESCRIPTIONS_METRICS_RETRIES', '5'))
-postMetricsPath = os.getenv('PRESCRIPTIONS_METRICS_PATH', '/metrics')
+endpoint = os.getenv('PRESCRIPTIONS_ENDPOINT')
+bearerToken = os.getenv('PRESCRIPTIONS_METRICS_TOKEN')
+timeout = int(os.getenv('PRESCRIPTIONS_METRICS_TIMEOUT'))
+retries = int(os.getenv('PRESCRIPTIONS_METRICS_RETRIES'))
+postMetricsPath = os.getenv('PRESCRIPTIONS_METRICS_PATH')
 
 
 def saveMetrics(rid, metricsData):
