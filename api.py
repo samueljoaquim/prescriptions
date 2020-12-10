@@ -3,18 +3,20 @@ from bson.json_util import dumps
 import flask
 from flask import request
 
+import uuid
+
 import logging
 
 from services import prescriptions
 
 from exceptions import PrescriptionsException
 
-logging.basicConfig(format='%(asctime)s|%(name)s|%(levelname)s|%(message)s',level=logging.DEBUG)
-
+logging.basicConfig(format='%(asctime)s|%(name)s|%(levelname)s|%(message)s')
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 app = flask.Flask(__name__)
-app.config['DEBUG'] = True
+app.config['DEBUG'] = False
 
 
 #[POST] - /prescriptions
@@ -53,18 +55,19 @@ app.config['DEBUG'] = True
 # }
 @app.route('/prescriptions', methods=['POST'])
 def addPrescription():
+    rid = uuid.uuid4().hex
     try:
-        logger.debug('Getting prescription data from POST')
+        logger.debug('%s|Getting prescription data from POST', rid)
         prescriptionData = request.json
-        logger.debug('Prescription data: %s. Saving prescription.', prescriptionData)
+        logger.debug('%s|Prescription data: %s. Saving prescription.', rid, prescriptionData)
 
-        entry = prescriptions.savePrescription(prescriptionData)
-        logger.debug('Prescription saved: %s', entry)
+        entry = prescriptions.savePrescription(rid, prescriptionData)
+        logger.debug('%s|Prescription saved: %s', rid, entry)
 
         return dumps({"data": entry}), 201
 
     except PrescriptionsException as exc:
-        logger.exception('Application error executing the service')
+        logger.exception('%s|Application error executing the service', rid)
         return dumps({
             "error": {
                 "message": exc.message,
@@ -72,7 +75,7 @@ def addPrescription():
             }
         }), exc.httpstatus
     except:
-        logger.exception('Unknown error executing the service')
+        logger.exception('%s|Unknown error executing the service', rid)
         return dumps({
             "error": {
                 "message": "application error",
@@ -81,4 +84,6 @@ def addPrescription():
         }), 500
 
 
-app.run()
+# Start server if main
+if __name__ == "__main__":
+    app.run()

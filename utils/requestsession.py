@@ -16,3 +16,23 @@ def getSession(retries):
     return session
 
 
+def doGetJsonRequest(url,retries,timeout,bearerToken):
+    request = getSession(retries)
+    data = None
+    request.headers.update({"Content-Type": "application/json"})
+    request.headers.update({"Authorization": "Bearer "+bearerToken})
+    response = request.get(url, timeout=timeout)
+    if(response.status_code == 200):
+        data = response.json()
+    return response.status_code, data
+
+
+def doPostJsonRequest(url,data,retries,timeout,bearerToken):
+    request = getSession(retries)
+    data = None
+    request.headers.update({"Content-Type": "application/json"})
+    request.headers.update({"Authorization": "Bearer "+bearerToken})
+    response = request.post(url, timeout=timeout, data=data)
+    if(response.status_code == 200):
+        data = response.json()
+    return response.status_code, data

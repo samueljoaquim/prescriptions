@@ -36,3 +36,9 @@ class PatientsNotAvailableException(PrescriptionsException):
         self.code = 6
         self.httpstatus = 503
         self.message = "patients service not available"
+
+class DatabaseNotAvailableException(PrescriptionsException):
+    def __init__(self):
+        self.code = 7
+        self.httpstatus = 503
+        self.message = "database service not available"
