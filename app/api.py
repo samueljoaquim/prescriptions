@@ -9,7 +9,11 @@ import logging
 
 from services import prescriptions
 
-from exceptions import PrescriptionsException
+from exceptions import PrescriptionsException, MalformedRequestException
+
+from models.schemas import prescriptionsInputSchema
+
+from models.validators import validatePrescriptionInputData, validatePrescriptionOutputData
 
 logging.basicConfig(format='%(asctime)s|%(name)s|%(levelname)s|%(message)s')
 logger = logging.getLogger(__name__)
@@ -19,54 +23,40 @@ app = flask.Flask(__name__)
 app.config['DEBUG'] = False
 
 
-#[POST] - /prescriptions
-#  Validate clinic, physician and patient ids, save metrics and
-#  return the prescription request data with and added id
-#
-#  Request body example:
-#  {
-#   "clinic": {
-#     "id": 1
-#   },
-#   "physician": {
-#     "id": 1
-#   },
-#   "patient": {
-#     "id": 1
-#   },
-#   "text": "Dipirona 1x ao dia"
-#  }
-#
-#  Response body example:
-# {
-#   "data": {
-#     "id": 1,
-#     "clinic": {
-#       "id": 1
-#     },
-#     "physician": {
-#       "id": 1
-#     },
-#     "patient": {
-#       "id": 1
-#     },
-#     "text": "Dipirona 1x ao dia"
-#   }
-# }
+"""
+[POST] - /prescriptions
+Validate clinic, physician and patient ids, save metrics and
+return the prescription request data with and added id
+
+For complete documentation, refer to the swagger.yml file on the project root.
+"""
 @app.route('/prescriptions', methods=['POST'])
 def addPrescription():
     rid = uuid.uuid4().hex
     try:
+
+        #get input data and validate
         logger.debug('%s|Getting prescription data from POST', rid)
         prescriptionData = request.json
         logger.debug('%s|Prescription data: %s. Saving prescription.', rid, prescriptionData)
 
+        logger.debug('%s|Validating prescription data',rid)
+        if not validatePrescriptionInputData(rid, prescriptionData):
+            raise MalformedRequestException()
+
+        #save prescription
         entry = prescriptions.savePrescription(rid, prescriptionData)
+
+        #convert MongoDB generated "_id" attribute to proper "id"
+        entry["id"] = entry["_id"]
+        entry.pop("_id", None)
         logger.debug('%s|Prescription saved: %s', rid, entry)
 
+        #return correct output data
         return dumps({"data": entry}), 201
 
     except PrescriptionsException as exc:
+        #Known errors, with correct codes and message
         logger.exception('%s|Application error executing the service', rid)
         return dumps({
             "error": {
@@ -75,6 +65,7 @@ def addPrescription():
             }
         }), exc.httpstatus
     except:
+        #Unknown error, return a generic error message
         logger.exception('%s|Unknown error executing the service', rid)
         return dumps({
             "error": {

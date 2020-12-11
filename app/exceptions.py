@@ -4,7 +4,7 @@ class PrescriptionsException(Exception):
 class MalformedRequestException(PrescriptionsException):
     def __init__(self):
         self.code = 1
-        self.httpstatus = 400
+        self.httpstatus = 405
         self.message = "malformed request"
 
 class PhysicianNotFoundException(PrescriptionsException):

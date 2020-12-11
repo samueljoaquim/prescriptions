@@ -17,7 +17,8 @@ prescriptions
 │   ├── Pipfile.lock
 │   ├── models
 │   │   ├── __init__.py
-│   │   └── schemas.py
+│   │   ├── schemas.py
+│   │   └── validators.py
 │   ├── services
 │   │   ├── __init__.py
 │   │   ├── clinics.py
@@ -32,7 +33,8 @@ prescriptions
 │   │   ├── test_metrics.py
 │   │   ├── test_patients.py
 │   │   ├── test_physicians.py
-│   │   └── test_prescriptions.py
+│   │   ├── test_prescriptions.py
+│   │   └── test_validators.py
 │   └── utils
 │       ├── __init__.py
 │       ├── asyncloop.py
@@ -42,13 +44,13 @@ prescriptions
 ├── docker-compose.yml
 ├── Dockerfile
 ├── README.md
-└── sourceenv.sh
-
+├── sourceenv.sh
+└── swagger.yml
 ```
 
 The *app* directory contains the application itself. The *api.py* file is the main application, that executes the Flask server and acts as the controller. *services* contains all internal services (*prescriptions.py*) and external APIs calls (all other modules). *models* contains the schemas to validate inputs and outputs for the services. *tests* contains the unit tests. *utils* contains useful functions that are shared by several modules.
 
-This application uses *pipenv* as the virtual environment and dependencies management tool. Once it is installed, you can run ```pipenv install``` inside the *app* directory and it will install all dependencies. To run the application directly, without using docker, run ```pipenv run python3 api.py``` from inside the *app* directory. **Don't forget to set all the necessary environment variables as shown below.**
+This application uses *pipenv* as the virtual environment and dependencies management tool. Once it is installed, you can run ```pipenv install --dev``` inside the *app* directory and it will install all dependencies, including unit test tools and libraries. To run the application directly, without using docker, run ```pipenv run python api.py``` from inside the *app* directory. **Don't forget to set all the necessary environment variables as shown below.**
 
 
 ### Environment Variables
@@ -149,7 +151,7 @@ db.prescriptions.findOne()
 If the data is being saved correctly, you should see an output like this:
 ```
 {
-        "_id" : ObjectId("5fd265500b7378780c7508b6"),
+        "id" : ObjectId("5fd265500b7378780c7508b6"),
         "clinic" : {
                 "id" : 1
         },
@@ -169,8 +171,4 @@ If the data is being saved correctly, you should see an output like this:
 This project uses *nose* for unit testing, along with the *coverage* plugin for it. To execute the tests and get the coverage report, simply run:
 ```
 pipenv run nosetests --with-coverage --cover-package=api,services
-```
-You can also run the tests inside a running docker container:
-```
-docker exec -it `docker ps|sed -n 's/.*\(prescriptions_prescriptionssvc.*\)/\1/gp'` pipenv run nosetests --with-coverage --cover-package=api,services
 ```

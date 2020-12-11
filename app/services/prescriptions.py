@@ -3,30 +3,17 @@ from pymongo.errors import ConnectionFailure, ServerSelectionTimeoutError, AutoR
 
 import logging
 
-import jsonschema
-
 from utils import asyncloop, database
 
 from services import clinics, physicians, patients, metrics
 
-from models.schemas import prescriptionsSchema
-
-from exceptions import MalformedRequestException, DatabaseNotAvailableException
+from exceptions import DatabaseNotAvailableException
 
 import asyncio
 
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
-
-def validatePrescriptionData(rid, prescription):
-    try:
-        jsonschema.validate(instance=prescription, schema=prescriptionsSchema)
-        return True
-    except:
-        logger.exception("%s|Error in prescription schema validation", rid)
-        return False
-
 
 def assembleMetricsData(rid, clinic, physician, patient):
     metricsData = {
@@ -48,10 +35,6 @@ def assembleMetricsData(rid, clinic, physician, patient):
 
 def savePrescription(rid, prescription):
     loop = asyncloop.getOrCreateEventloop()
-
-    logger.debug('%s|Validating prescription data',rid)
-    if not validatePrescriptionData(rid, prescription):
-        raise MalformedRequestException()
 
     logger.debug('%s|Running requests for clinic, physician and patient',rid)
     responses = loop.run_until_complete(asyncio.gather(

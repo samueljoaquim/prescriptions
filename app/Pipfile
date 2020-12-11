@@ -8,13 +8,13 @@ flask = "*"
 pymongo = "*"
 cachetools = "*"
 jsonschema = "*"
-nose = "*"
-coverage = "*"
 asyncio = "*"
 aiohttp = "*"
 aiohttp-retry = "*"
 
 [dev-packages]
+nose = "*"
+coverage = "*"
 
 [requires]
 python_version = "3.7"
