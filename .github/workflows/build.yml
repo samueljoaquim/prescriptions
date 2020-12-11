@@ -26,8 +26,6 @@ jobs:
         pipenv install --dev
     - name: Test with Nose
       working-directory: ./app
-      run: |
-        pipenv run nosetests --with-coverage --cover-package=api,services,models,exceptions
       env:
         PRESCRIPTIONS_MONGODB_URI: mongodb://prescriptionsdb:27017
         PRESCRIPTIONS_MONGODB_OP_TIMEOUT: 15000
@@ -49,6 +47,8 @@ jobs:
         PRESCRIPTIONS_CLINIC_TIMEOUT: 5
         PRESCRIPTIONS_CLINIC_RETRIES: 3
         PRESCRIPTIONS_CLINIC_PATH: /clinics/{id}
+      run: |
+        pipenv run nosetests --with-coverage --cover-package=api,services,models,exceptions
       
   build:
     needs: test
@@ -59,4 +59,4 @@ jobs:
       env:
         IMAGE_TAG: ${{ github.sha }}
       run:
-        docker build -t "prescriptions:$IMAGE_TAG"
+        docker build . -t "prescriptions:$IMAGE_TAG"

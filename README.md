@@ -7,7 +7,8 @@ This is an implementation of the [iClinic Python Challenge](https://github.com/i
 
 
 ## Build Status
-![Prescriptions build](https://github.com/samueljoaquim/prescriptions/workflows/.github/workflows/build.yml/badge.svg)
+![Prescriptions build](https://github.com/samueljoaquim/prescriptions/workflows/Prescriptions%20Build/badge.svg)
+
 
 ## Project Structure
 The root of the project is structured as follows:
