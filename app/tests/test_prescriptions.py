@@ -6,6 +6,8 @@ from exceptions import MalformedRequestException
 
 from unittest.mock import MagicMock, patch
 
+from utils import asyncloop
+
 
 rid="TEST"
 
@@ -92,21 +94,35 @@ def test_save_prescription_with_clinic_name():
           "patient_phone": "(16)998765625"
     }
 
-    mock_clinics_patcher = patch('services.prescriptions.clinics.getClinic')
+    mock_clinics_patcher = patch('services.prescriptions.clinics')
     mock_clinics = mock_clinics_patcher.start()
-    mock_clinics.return_value = {"id": 1, "name": "Clínica A"}
+    async def getClinicFuture(a, b):
+        return {"id": 1, "name": "Clínica A"}
 
-    mock_physicians_patcher = patch('services.prescriptions.physicians.getPhysician')
+    mock_clinics.getClinic = getClinicFuture
+
+    mock_physicians_patcher = patch('services.prescriptions.physicians')
     mock_physicians = mock_physicians_patcher.start()
-    mock_physicians.return_value = {"id": 1, "name": "José", "crm": "SP293893"}
+    async def getPhysicianFuture(a, b):
+        return {"id": 1, "name": "José", "crm": "SP293893"}
 
-    mock_patients_patcher = patch('services.prescriptions.patients.getPatient')
+    mock_physicians.getPhysician = getPhysicianFuture
+
+    mock_patients_patcher = patch('services.prescriptions.patients')
     mock_patients = mock_patients_patcher.start()
-    mock_patients.return_value = {"id": 1, "name": "Rodrigo", "email": "rodrigo@gmail.com", "phone": "(16)998765625"}
+    async def getPatientFuture(a, b):
+        return {"id": 1, "name": "Rodrigo", "email": "rodrigo@gmail.com", "phone": "(16)998765625"}
 
-    mock_metrics_patcher = patch('services.prescriptions.metrics.saveMetrics')
+    mock_patients.getPatient = getPatientFuture
+
+
+    mock_metrics_patcher = patch('services.prescriptions.metrics')
     mock_metrics = mock_metrics_patcher.start()
-    mock_metrics.return_value = metricsData
+    async def saveMetricsFuture(a, b):
+        return metricsData
+
+    mock_metrics.saveMetrics = saveMetricsFuture
+
 
     mock_database_patcher = patch('services.prescriptions.database.getDb')
     mock_database = mock_database_patcher.start()
@@ -134,6 +150,7 @@ def test_save_prescription_with_clinic_name():
         mock_database_patcher.stop()
 
 
+
 def test_save_prescription_without_clinic_name():
     metricsData = {
           "clinic_id": 1,
@@ -146,21 +163,35 @@ def test_save_prescription_without_clinic_name():
           "patient_phone": "(16)998765625"
     }
 
-    mock_clinics_patcher = patch('services.prescriptions.clinics.getClinic')
+    mock_clinics_patcher = patch('services.prescriptions.clinics')
     mock_clinics = mock_clinics_patcher.start()
-    mock_clinics.return_value = {"id": 1}
+    async def getClinicFuture(a, b):
+        return {"id": 1}
 
-    mock_physicians_patcher = patch('services.prescriptions.physicians.getPhysician')
+    mock_clinics.getClinic = getClinicFuture
+
+    mock_physicians_patcher = patch('services.prescriptions.physicians')
     mock_physicians = mock_physicians_patcher.start()
-    mock_physicians.return_value = {"id": 1, "name": "José", "crm": "SP293893"}
+    async def getPhysicianFuture(a, b):
+        return {"id": 1, "name": "José", "crm": "SP293893"}
 
-    mock_patients_patcher = patch('services.prescriptions.patients.getPatient')
+    mock_physicians.getPhysician = getPhysicianFuture
+
+    mock_patients_patcher = patch('services.prescriptions.patients')
     mock_patients = mock_patients_patcher.start()
-    mock_patients.return_value = {"id": 1, "name": "Rodrigo", "email": "rodrigo@gmail.com", "phone": "(16)998765625"}
+    async def getPatientFuture(a, b):
+        return {"id": 1, "name": "Rodrigo", "email": "rodrigo@gmail.com", "phone": "(16)998765625"}
 
-    mock_metrics_patcher = patch('services.prescriptions.metrics.saveMetrics')
+    mock_patients.getPatient = getPatientFuture
+
+
+    mock_metrics_patcher = patch('services.prescriptions.metrics')
     mock_metrics = mock_metrics_patcher.start()
-    mock_metrics.return_value = metricsData
+    async def saveMetricsFuture(a, b):
+        return metricsData
+
+    mock_metrics.saveMetrics = saveMetricsFuture
+
 
     mock_database_patcher = patch('services.prescriptions.database.getDb')
     mock_database = mock_database_patcher.start()

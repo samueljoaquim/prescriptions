@@ -2,8 +2,6 @@ from cachetools import cached, TTLCache
 
 import os
 
-from requests.exceptions import Timeout
-
 import logging
 
 from utils import requestsession
@@ -24,12 +22,19 @@ retries = int(os.getenv('PRESCRIPTIONS_PATIENT_RETRIES'))
 getPatientPath = os.getenv('PRESCRIPTIONS_PATIENT_PATH')
 
 
-def getPatient(rid, id):
+async def getPatient(rid, id):
     try:
-        patient = None
-        status_code, response = getPatientCachedRequest(id)
+        patient = getCached(id)
+        if patient is not None:
+            logger.debug('%s|Returning cached patient: %s', rid, patient)
+            return patient
+
+        logger.debug('%s|Getting patient information for id %d', rid, id)
+        status_code, response = await getPatientRequest(id)
         if(status_code == 200):
             patient = response
+            putInCache(id,patient)
+            logger.debug("%s|Patient information: %s", rid, patient)
             return patient
         else:
             raise PatientNotFoundException()
@@ -39,11 +44,19 @@ def getPatient(rid, id):
         raise PatientsNotAvailableException()
 
 
-@cached(patientCache)
-def getPatientCachedRequest(id):
+async def getPatientRequest(id):
     url = endpoint+getPatientPath.format(id=id)
-    return requestsession.doGetJsonRequest(url,retries,timeout,bearerToken)
+    return await requestsession.doGetJsonRequest(url,retries,timeout,bearerToken)
+
+
+def getCached(id):
+    return patientCache.get(id)
+
+
+def putInCache(id,patient):
+    patientCache.setdefault(id,patient)
 
 
 def clearPatientCache():
     patientCache.clear()
+    

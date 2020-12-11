@@ -4,8 +4,6 @@ import os
 
 from utils import requestsession
 
-from requests.exceptions import Timeout
-
 import logging
 
 
@@ -22,12 +20,21 @@ retries = int(os.getenv('PRESCRIPTIONS_CLINIC_RETRIES'))
 getClinicPath = os.getenv('PRESCRIPTIONS_CLINIC_PATH')
 
 
-def getClinic(rid, id):
-    clinic = {"id": id}
+async def getClinic(rid, id):
     try:
-        status_code, response = getClinicCachedRequest(id)
+        clinic = getCached(id)
+        if clinic is not None:
+            logger.debug('%s|Returning cached clinic: %s', rid, clinic)
+            return clinic
+        else:
+            clinic = {"id": id}
+
+        logger.debug('%s|Getting clinic information for id %d', rid, id)
+        status_code, response = await getClinicRequest(id)
         if(status_code == 200):
             clinic = response
+            putInCache(id,clinic)
+            logger.debug("%s|Clinic information: %s", rid, clinic)
         else:
             logger.warn("%s|Clinic with id %d was not found, returning only default object", rid, id)
     except:
@@ -35,10 +42,17 @@ def getClinic(rid, id):
     return clinic
 
 
-@cached(clinicCache)
-def getClinicCachedRequest(id):
+async def getClinicRequest(id):
     url = endpoint+getClinicPath.format(id=id)
-    return requestsession.doGetJsonRequest(url,retries,timeout,bearerToken)
+    return await requestsession.doGetJsonRequest(url,retries,timeout,bearerToken)
+
+
+def getCached(id):
+    return clinicCache.get(id)
+
+
+def putInCache(id,clinic):
+    clinicCache.setdefault(id,clinic)
 
 
 def clearClinicCache():

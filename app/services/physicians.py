@@ -2,8 +2,6 @@ from cachetools import cached, TTLCache
 
 import os
 
-from requests.exceptions import Timeout
-
 import logging
 
 from utils import requestsession
@@ -24,12 +22,19 @@ retries = int(os.getenv('PRESCRIPTIONS_PHYSICIAN_RETRIES'))
 getPhysicianPath = os.getenv('PRESCRIPTIONS_PHYSICIAN_PATH')
 
 
-def getPhysician(rid, id):
+async def getPhysician(rid, id):
     try:
-        physician = None
-        status_code, response = getPhysicianCachedRequest(id)
+        physician = getCached(id)
+        if physician is not None:
+            logger.debug('%s|Returning cached physician: %s', rid, physician)
+            return physician
+
+        logger.debug('%s|Getting physician information for id %d', rid, id)
+        status_code, response = await getPhysicianRequest(id)
         if(status_code == 200):
             physician = response
+            putInCache(id,physician)
+            logger.debug("%s|Physician information: %s", rid, physician)
             return physician
         else:
             raise PhysicianNotFoundException()
@@ -39,10 +44,17 @@ def getPhysician(rid, id):
         raise PhysiciansNotAvailableException()
 
 
-@cached(physicianCache)
-def getPhysicianCachedRequest(id):
+async def getPhysicianRequest(id):
     url = endpoint+getPhysicianPath.format(id=id)
-    return requestsession.doGetJsonRequest(url,retries,timeout,bearerToken)
+    return await requestsession.doGetJsonRequest(url,retries,timeout,bearerToken)
+
+
+def getCached(id):
+    return physicianCache.get(id)
+
+
+def putInCache(id,physician):
+    physicianCache.setdefault(id,physician)
 
 
 def clearPhysicianCache():
