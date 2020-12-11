@@ -6,6 +6,9 @@ iClinic Python Challenge implementation
 This is an implementation of the [iClinic Python Challenge](https://github.com/iclinic/iclinic-python-challenge). It is a REST API as described in this link, taking on consideration all the required services, and using *MongoDB* as the backing database. Let's get started!
 
 
+## Build Status
+![Prescriptions build](https://github.com/samueljoaquim/prescriptions/workflows/.github/workflows/build.yml/badge.svg)
+
 ## Project Structure
 The root of the project is structured as follows:
 ```
