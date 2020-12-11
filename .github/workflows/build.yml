@@ -29,4 +29,5 @@ jobs:
     - name: Test with Nose
       working-directory: ./app
       run: |
+        . ../sourceenv.sh
         pipenv run nosetests --with-coverage --cover-package=api,services,models,exceptions
