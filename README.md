@@ -170,5 +170,24 @@ If the data is being saved correctly, you should see an output like this:
 ## Running Unit Tests With Coverage
 This project uses *nose* for unit testing, along with the *coverage* plugin for it. To execute the tests and get the coverage report, simply run:
 ```
-pipenv run nosetests --with-coverage --cover-package=api,services
+pipenv run nosetests --with-coverage --cover-package=api,services,models,exceptions
+```
+
+Current project coverage report is:
+```
+Name                        Stmts   Miss  Cover
+-----------------------------------------------
+api.py                         36      1    97%
+exceptions.py                  37      3    92%
+models/__init__.py              0      0   100%
+models/schemas.py               3      0   100%
+models/validators.py           26      0   100%
+services/__init__.py            0      0   100%
+services/clinics.py            38      0   100%
+services/metrics.py            24      0   100%
+services/patients.py           40      0   100%
+services/physicians.py         40      0   100%
+services/prescriptions.py      40      0   100%
+-----------------------------------------------
+TOTAL                         284      4    99%
 ```

@@ -96,6 +96,31 @@ def test_add_prescription_fail_service_not_available():
         mock_session_patcher.stop()
 
 
+def test_add_prescription_fail_database_not_available():
+    requestData = {
+        "clinic": {"id": 1},
+        "physician": {"id": 1},
+        "patient": {"id": 1},
+        "text": "validText"
+    }
+
+    mock_session_patcher = patch('api.prescriptions.savePrescription')
+    mock_session = mock_session_patcher.start()
+    try:
+        mock_session.side_effect = DatabaseNotAvailableException()
+
+        client = api.app.test_client()
+
+        ret = client.post('/prescriptions', json=requestData)
+        assert ret.status_code == 503
+        
+        returnedData = json.loads(ret.data)
+        assert returnedData["error"]["code"] == "07"
+        assert validatePrescriptionErrorMsgData("TEST", returnedData)
+    finally:
+        mock_session_patcher.stop()
+
+
 def test_add_prescription_fail_unknown_error():
     requestData = {
         "clinic": {"id": 1},

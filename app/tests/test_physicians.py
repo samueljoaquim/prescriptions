@@ -42,6 +42,14 @@ def test_physicians_existing():
         assert response["id"] == 1
         assert response["name"] == "José"
         assert response["crm"] == "SP293893"
+
+        #test if cached element is returned, despite of changes in response
+        mock_session.return_value =  asyncloop.getTestFuture(
+            (200, {"id": 1, "name": "João", "crm": "SP293894"})
+        )
+        newresponse = asyncio.run(physicians.getPhysician(rid, 1))
+
+        assert newresponse["name"] == "José"
     finally:
         mock_session_patcher.stop()
         physicians.clearPhysicianCache()
