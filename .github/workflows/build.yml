@@ -29,5 +29,5 @@ jobs:
     - name: Test with Nose
       working-directory: ./app
       run: |
-        . ../sourceenv.sh
+        for e in `cat ../docker-compose.dev.env`; do echo "$e" >> $GITHUB_ENV; done
         pipenv run nosetests --with-coverage --cover-package=api,services,models,exceptions
