@@ -1,7 +1,5 @@
 import os
 
-from requests.exceptions import Timeout
-
 import logging
 
 from utils import requestsession
@@ -20,10 +18,10 @@ retries = int(os.getenv('PRESCRIPTIONS_METRICS_RETRIES'))
 postMetricsPath = os.getenv('PRESCRIPTIONS_METRICS_PATH')
 
 
-def saveMetrics(rid, metricsData):
+async def saveMetrics(rid, metricsData):
     try:
         metricsResponse = None
-        status_code, response = saveMetricsRequest(metricsData)
+        status_code, response = await saveMetricsRequest(metricsData)
         if(status_code == 201):
             metricsResponse = response
             return metricsResponse
@@ -33,6 +31,6 @@ def saveMetrics(rid, metricsData):
         raise MetricsNotAvailableException()
 
 
-def saveMetricsRequest(data):
+async def saveMetricsRequest(data):
     url = endpoint+postMetricsPath
-    return requestsession.doPostJsonRequest(url,data,retries,timeout,bearerToken)
+    return await requestsession.doPostJsonRequest(url,data,retries,timeout,bearerToken)

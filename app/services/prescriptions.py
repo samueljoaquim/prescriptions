@@ -5,7 +5,7 @@ import logging
 
 import jsonschema
 
-from utils import database
+from utils import asyncloop, database
 
 from services import clinics, physicians, patients, metrics
 
@@ -13,9 +13,11 @@ from models.schemas import prescriptionsSchema
 
 from exceptions import MalformedRequestException, DatabaseNotAvailableException
 
+import asyncio
+
+
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
-
 
 def validatePrescriptionData(rid, prescription):
     try:
@@ -45,26 +47,27 @@ def assembleMetricsData(rid, clinic, physician, patient):
 
 
 def savePrescription(rid, prescription):
+    loop = asyncloop.getOrCreateEventloop()
+
     logger.debug('%s|Validating prescription data',rid)
     if not validatePrescriptionData(rid, prescription):
         raise MalformedRequestException()
 
-    logger.debug('%s|Getting clinic information for id %d', rid, prescription["clinic"]["id"])
-    clinic = clinics.getClinic(rid, prescription["clinic"]["id"])
-    logger.debug("%s|Clinic information: %s", rid, clinic)
-
-    logger.debug('%s|Getting physician information for id %d', rid, prescription["physician"]["id"])
-    physician = physicians.getPhysician(rid, prescription["physician"]["id"])
-    logger.debug("%s|Physician information: %s", rid, physician)
-
-    logger.debug('%s|Getting patient information for id %d', rid, prescription["patient"]["id"])
-    patient = patients.getPatient(rid, prescription["patient"]["id"])
-    logger.debug("%s|Patient information: %s", rid, patient)
+    logger.debug('%s|Running requests for clinic, physician and patient',rid)
+    responses = loop.run_until_complete(asyncio.gather(
+        clinics.getClinic(rid, prescription["clinic"]["id"]),
+        physicians.getPhysician(rid, prescription["physician"]["id"]),
+        patients.getPatient(rid, prescription["patient"]["id"])
+    ))
+    logger.debug('%s|Responses: %s',rid, responses)
+    clinic = responses[0]
+    physician = responses[1]
+    patient = responses[2]
 
     logger.debug('%s|Saving metrics', rid)
     metricsData = assembleMetricsData(rid, clinic, physician, patient)
     logger.debug("%s|Metrics request data: %s", rid, metricsData)
-    metricsInfo =metrics.saveMetrics(rid, metricsData)
+    metricsInfo = asyncio.run(metrics.saveMetrics(rid, metricsData))
     logger.debug("%s|Metrics returned information: %s", rid, metricsInfo)
 
     logger.debug('%s|Saving prescription on the database', rid)

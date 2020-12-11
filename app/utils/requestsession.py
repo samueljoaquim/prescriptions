@@ -1,38 +1,35 @@
-import requests
-from requests.adapters import HTTPAdapter
-from requests.packages.urllib3.util.retry import Retry
-
+from aiohttp_retry import RetryClient, RetryOptions
+import json
 
 def getSession(retries):
-    session = requests.Session()
-    retryConfig = Retry(
-        total=retries,
-        status_forcelist=[408, 429, 500, 502, 503, 504],    #Force retries in these statuses
-        method_whitelist=False                              #Allow in any HTTP method, including POST
+    options = RetryOptions(
+        attempts=retries,
+        statuses=[408, 429, 500, 502, 503, 504],
     )
-    httpadapter = HTTPAdapter(max_retries=retryConfig)
-    session.mount('http://', httpadapter)
-    session.mount('https://', httpadapter)
-    return session
+    return RetryClient(retry_options=options)
 
 
-def doGetJsonRequest(url,retries,timeout,bearerToken):
+async def doGetJsonRequest(url,retries,timeout,bearerToken):
     request = getSession(retries)
-    data = None
-    request.headers.update({"Content-Type": "application/json"})
-    request.headers.update({"Authorization": "Bearer "+bearerToken})
-    response = request.get(url, timeout=timeout)
-    if(response.status_code == 200):
-        data = response.json()
-    return response.status_code, data
+    try:
+        data = None
+        request._client.headers.update({"Content-Type": "application/json"})
+        request._client.headers.update({"Authorization": "Bearer "+bearerToken})
+        async with request.get(url, timeout=timeout) as response:
+            data = await response.json()
+            return response.status, data
+    finally:
+        await request.close()
 
 
-def doPostJsonRequest(url,data,retries,timeout,bearerToken):
+async def doPostJsonRequest(url,data,retries,timeout,bearerToken):
     request = getSession(retries)
-    data = None
-    request.headers.update({"Content-Type": "application/json"})
-    request.headers.update({"Authorization": "Bearer "+bearerToken})
-    response = request.post(url, timeout=timeout, data=data)
-    if(response.status_code == 201):
-        data = response.json()
-    return response.status_code, data
+    try:
+        data = None
+        request._client.headers.update({"Content-Type": "application/json"})
+        request._client.headers.update({"Authorization": "Bearer "+bearerToken})
+        async with request.post(url, timeout=timeout, data=data) as response:
+            data = await response.json()
+            return response.status, data
+    finally:
+        await request.close()

@@ -32,18 +32,18 @@ prescriptions
 │   │   ├── test_metrics.py
 │   │   ├── test_patients.py
 │   │   ├── test_physicians.py
-│   │   ├── test_prescriptions.py
-│   │   └── test_utils.py
+│   │   └── test_prescriptions.py
 │   └── utils
-│       ├── __init__.py
+│       ├── __init__.py
+│       ├── asyncloop.py
 │       ├── database.py
 │       └── requestsession.py
 ├── docker-compose.dev.env
 ├── docker-compose.yml
 ├── Dockerfile
-├── Pipfile
 ├── README.md
 └── sourceenv.sh
+
 ```
 
 The *app* directory contains the application itself. The *api.py* file is the main application, that executes the Flask server and acts as the controller. *services* contains all internal services (*prescriptions.py*) and external APIs calls (all other modules). *models* contains the schemas to validate inputs and outputs for the services. *tests* contains the unit tests. *utils* contains useful functions that are shared by several modules.
@@ -168,9 +168,9 @@ If the data is being saved correctly, you should see an output like this:
 ## Running Unit Tests With Coverage
 This project uses *nose* for unit testing, along with the *coverage* plugin for it. To execute the tests and get the coverage report, simply run:
 ```
-pipenv run nosetests --with-coverage --cover-package=api,services,utils,exceptions
+pipenv run nosetests --with-coverage --cover-package=api,services
 ```
 You can also run the tests inside a running docker container:
 ```
-docker exec -it `docker ps|sed -n 's/.*\(prescriptions_prescriptionssvc.*\)/\1/gp'` pipenv run nosetests --with-coverage --cover-package=api,services,utils,exceptions
+docker exec -it `docker ps|sed -n 's/.*\(prescriptions_prescriptionssvc.*\)/\1/gp'` pipenv run nosetests --with-coverage --cover-package=api,services
 ```
