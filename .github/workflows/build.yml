@@ -10,10 +10,8 @@ on:
     branches: [ main ]
 
 jobs:
-  build:
-
+  test:
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python 3.7
@@ -52,3 +50,13 @@ jobs:
         PRESCRIPTIONS_CLINIC_RETRIES: 3
         PRESCRIPTIONS_CLINIC_PATH: /clinics/{id}
       
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Build Docker Image
+      env:
+        IMAGE_TAG: ${{ github.sha }}
+      run:
+        docker build -t "prescriptions:$IMAGE_TAG"
