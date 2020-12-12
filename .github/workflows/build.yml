@@ -51,8 +51,10 @@ jobs:
         pipenv run nosetests --with-coverage --cover-min-percentage=80 --cover-package=api,services,models,exceptions
       
   build:
+    needs: test
     runs-on: ubuntu-latest
     steps:
+    - uses: actions/checkout@v2
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
       with:
