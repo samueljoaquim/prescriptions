@@ -58,5 +58,3 @@ prescriptionsErrorMsgSchema = {
     },
     "required": ["error"]
 }
-
-

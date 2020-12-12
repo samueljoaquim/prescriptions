@@ -1,12 +1,10 @@
-import unittest
-
 import asyncio
+
+from unittest.mock import patch
 
 from services import metrics
 
 from exceptions import MetricsNotAvailableException
-
-from unittest.mock import MagicMock, patch
 
 from utils import asyncloop
 
@@ -84,7 +82,7 @@ def test_metrics_error_status():
     mock_session = mock_session_patcher.start()
     try:
         mock_session.return_value =  asyncloop.getTestFuture((500, None))
-        response = asyncio.run(metrics.saveMetrics(rid, metricsData))
+        asyncio.run(metrics.saveMetrics(rid, metricsData))
         assert False
     except MetricsNotAvailableException:
         assert True
@@ -111,7 +109,7 @@ def test_metrics_exception():
     mock_session = mock_session_patcher.start()
     try:
         mock_session.side_effect = Exception('Error')
-        response = asyncio.run(metrics.saveMetrics(rid, metricsData))
+        asyncio.run(metrics.saveMetrics(rid, metricsData))
         assert False
     except MetricsNotAvailableException:
         assert True

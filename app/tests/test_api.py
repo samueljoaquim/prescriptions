@@ -1,16 +1,15 @@
-import unittest
+from unittest.mock import patch
+
+from flask import json
+
+from bson.objectid import ObjectId
 
 import api
 
 from models.validators import validatePrescriptionOutputData, validatePrescriptionErrorMsgData
 
-from flask import json
+from exceptions import PhysicianNotFoundException, MetricsNotAvailableException, DatabaseNotAvailableException
 
-from exceptions import *
-
-from bson.objectid import ObjectId
-
-from unittest.mock import MagicMock, patch
 
 def test_add_prescription_success():
     requestData = {

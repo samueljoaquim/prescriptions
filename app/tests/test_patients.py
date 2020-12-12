@@ -1,12 +1,10 @@
-import unittest
-
 import asyncio
+
+from unittest.mock import patch
 
 from services import patients
 
 from exceptions import PatientNotFoundException, PatientsNotAvailableException
-
-from unittest.mock import MagicMock, patch
 
 from utils import asyncloop
 
@@ -68,7 +66,7 @@ def test_patients_non_existing():
             (404, None)
         )
 
-        status_code, response = asyncio.run(patients.getPatient(rid, 99))
+        asyncio.run(patients.getPatient(rid, 99))
         assert False
     except PatientNotFoundException:
         assert True
@@ -82,7 +80,7 @@ def test_patients_not_available():
     mock_session = mock_session_patcher.start()
     try:
         mock_session.side_effect = Exception('Error')
-        status_code, response = asyncio.run(patients.getPatient(rid, 1))
+        asyncio.run(patients.getPatient(rid, 1))
         assert False
     except PatientsNotAvailableException:
         assert True

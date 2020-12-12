@@ -1,8 +1,8 @@
-from cachetools import cached, TTLCache
-
 import os
 
 import logging
+
+from cachetools import TTLCache
 
 from utils import requestsession
 
@@ -31,13 +31,13 @@ async def getPatient(rid, id):
 
         logger.debug('%s|Getting patient information for id %d', rid, id)
         status_code, response = await getPatientRequest(id)
-        if(status_code == 200):
+        if status_code == 200:
             patient = response
             putInCache(id,patient)
             logger.debug("%s|Patient information: %s", rid, patient)
             return patient
-        else:
-            raise PatientNotFoundException()
+
+        raise PatientNotFoundException()
     except PatientNotFoundException as exc:
         raise exc
     except:

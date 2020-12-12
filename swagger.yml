@@ -5,9 +5,14 @@ info:
   [https://github.com/samueljoaquim/prescriptions](https://github.com/samueljoaquim/prescriptions)."
   version: "1.0.0"
   title: "Prescriptions API"
+tags:
+- name: "prescriptions"
+  description: "Prescriptions API"
 paths:
   /prescriptions:
     post:
+      tags:
+      - "prescriptions"
       summary: "Validate clinic, physician and patient ids, save metrics and
       return the prescription request data with and added id"
       description: ""

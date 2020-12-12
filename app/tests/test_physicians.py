@@ -1,12 +1,10 @@
-import unittest
-
 import asyncio
+
+from unittest.mock import patch
 
 from services import physicians
 
 from exceptions import PhysicianNotFoundException, PhysiciansNotAvailableException
-
-from unittest.mock import MagicMock, patch
 
 from utils import asyncloop
 
@@ -16,7 +14,7 @@ rid="TEST"
 def test_physicians_cached_request():
     mock_session_patcher = patch('services.physicians.requestsession.doGetJsonRequest')
     mock_session = mock_session_patcher.start()
-    try:    
+    try:
         mock_session.return_value =  asyncloop.getTestFuture(
             (200, {"id": 1, "name": "José", "crm": "SP293893"})
         )
@@ -63,7 +61,7 @@ def test_physicians_non_existing():
             (404, None)
         )
 
-        response = asyncio.run(physicians.getPhysician(rid, 99))
+        asyncio.run(physicians.getPhysician(rid, 99))
 
         assert False
 
@@ -79,8 +77,8 @@ def test_physicians_not_available():
     mock_session = mock_session_patcher.start()
     try:
         mock_session.side_effect = Exception('Error')
-        response = asyncio.run(physicians.getPhysician(rid, 1))
-        
+        asyncio.run(physicians.getPhysician(rid, 1))
+
         assert False
     except PhysiciansNotAvailableException:
         assert True

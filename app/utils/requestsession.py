@@ -1,5 +1,4 @@
 from aiohttp_retry import RetryClient, RetryOptions
-import json
 
 def getSession(retries):
     options = RetryOptions(

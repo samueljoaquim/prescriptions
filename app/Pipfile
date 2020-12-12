@@ -15,6 +15,7 @@ aiohttp-retry = "*"
 [dev-packages]
 nose = "*"
 coverage = "*"
+pylint = "*"
 
 [requires]
 python_version = "3.7"

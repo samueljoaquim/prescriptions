@@ -1,19 +1,17 @@
-from bson.json_util import dumps
+import uuid
+
+import logging
 
 import flask
 from flask import request
 
-import uuid
-
-import logging
+from bson.json_util import dumps
 
 from services import prescriptions
 
 from exceptions import PrescriptionsException, MalformedRequestException
 
-from models.schemas import prescriptionsInputSchema
-
-from models.validators import validatePrescriptionInputData, validatePrescriptionOutputData
+from models.validators import validatePrescriptionInputData
 
 logging.basicConfig(format='%(asctime)s|%(name)s|%(levelname)s|%(message)s')
 logger = logging.getLogger(__name__)
@@ -23,15 +21,15 @@ app = flask.Flask(__name__)
 app.config['DEBUG'] = False
 
 
-"""
-[POST] - /prescriptions
-Validate clinic, physician and patient ids, save metrics and
-return the prescription request data with and added id
-
-For complete documentation, refer to the swagger.yml file on the project root.
-"""
 @app.route('/prescriptions', methods=['POST'])
 def addPrescription():
+    """
+    [POST] - /prescriptions
+    Validate clinic, physician and patient ids, save metrics and
+    return the prescription request data with and added id
+
+    For complete documentation, refer to the swagger.yml file on the project root.
+    """
     rid = uuid.uuid4().hex
     try:
 

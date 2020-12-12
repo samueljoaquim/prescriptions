@@ -1,15 +1,14 @@
-import pymongo
-from pymongo.errors import ConnectionFailure, ServerSelectionTimeoutError, AutoReconnect
-
 import logging
+
+import asyncio
+
+from pymongo.errors import ConnectionFailure, ServerSelectionTimeoutError, AutoReconnect
 
 from utils import asyncloop, database
 
 from services import clinics, physicians, patients, metrics
 
 from exceptions import DatabaseNotAvailableException
-
-import asyncio
 
 
 logger = logging.getLogger(__name__)
@@ -27,7 +26,7 @@ def assembleMetricsData(rid, clinic, physician, patient):
           "patient_phone": patient["phone"]
     }
     if "name" in clinic:
-          metricsData["clinic_name"] = clinic["name"]
+        metricsData["clinic_name"] = clinic["name"]
 
     logger.debug("%s|Metrics Data: %s", rid, metricsData)
     return metricsData
@@ -66,4 +65,3 @@ def savePrescription(rid, prescription):
             db.close()
         except:
             pass
-

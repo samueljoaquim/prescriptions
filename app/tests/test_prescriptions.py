@@ -1,10 +1,8 @@
-import unittest
+from unittest.mock import MagicMock, patch
 
 from bson.objectid import ObjectId
 
 from services import prescriptions
-
-from unittest.mock import MagicMock, patch
 
 
 rid = "TEST"
@@ -72,7 +70,7 @@ def test_save_prescription_with_clinic_name():
     try:
         element = prescriptions.savePrescription(rid,inputData)
         assert "id" in element
-       
+
     finally:
         mock_clinics_patcher.stop()
         mock_physicians_patcher.stop()

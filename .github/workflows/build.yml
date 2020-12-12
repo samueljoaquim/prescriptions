@@ -24,7 +24,7 @@ jobs:
         python -m pip install --upgrade pip
         pip install pipenv
         pipenv install --dev
-    - name: Test with Nose
+    - name: Unit Tests
       working-directory: ./app
       env:
         PRESCRIPTIONS_MONGODB_URI: mongodb://prescriptionsdb:27017
@@ -48,15 +48,29 @@ jobs:
         PRESCRIPTIONS_CLINIC_RETRIES: 3
         PRESCRIPTIONS_CLINIC_PATH: /clinics/{id}
       run: |
-        pipenv run nosetests --with-coverage --cover-package=api,services,models,exceptions
+        pipenv run nosetests --with-coverage --cover-min-percentage=80 --cover-package=api,services,models,exceptions
       
   build:
-    needs: test
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    - name: Build Docker Image
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: sa-east-1
+
+    - name: Login to AWS ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v1
+
+    - name: Build and publish image to AWS ECR
+      id: build-image
       env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        ECR_REPOSITORY: prescriptions
         IMAGE_TAG: ${{ github.sha }}
-      run:
-        docker build . -t "prescriptions:$IMAGE_TAG"
+      run: |
+        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+        echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"

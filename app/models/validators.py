@@ -1,8 +1,9 @@
-from models.schemas import *
+import logging
 
 import jsonschema
 
-import logging
+from models.schemas import prescriptionsInputSchema, prescriptionsOutputSchema, prescriptionsErrorMsgSchema
+
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
@@ -31,5 +32,3 @@ def validatePrescriptionErrorMsgData(rid, prescription):
     except:
         logger.exception("%s|Error in prescription schema validation", rid)
         return False
-
-

@@ -1,4 +1,4 @@
-from models.validators import *
+from models.validators import validatePrescriptionInputData, validatePrescriptionOutputData, validatePrescriptionErrorMsgData
 
 
 rid="TEST"
@@ -108,5 +108,3 @@ def test_validate_prescriptions_error_msg_invalid():
         "message": "patient not found",
       }
     })
-
-

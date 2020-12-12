@@ -22,11 +22,11 @@ async def saveMetrics(rid, metricsData):
     try:
         metricsResponse = None
         status_code, response = await saveMetricsRequest(metricsData)
-        if(status_code == 201):
+        if status_code == 201:
             metricsResponse = response
             return metricsResponse
-        else:
-            raise MetricsNotAvailableException()
+
+        raise MetricsNotAvailableException()
     except:
         raise MetricsNotAvailableException()
 

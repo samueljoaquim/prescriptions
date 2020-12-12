@@ -1,10 +1,8 @@
-import unittest
-
 import asyncio
 
-from services import clinics
+from unittest.mock import patch
 
-from unittest.mock import MagicMock, patch
+from services import clinics
 
 from utils import asyncloop
 

@@ -1,10 +1,10 @@
-from cachetools import cached, TTLCache
+import logging
 
 import os
 
-from utils import requestsession
+from cachetools import TTLCache
 
-import logging
+from utils import requestsession
 
 
 logger = logging.getLogger(__name__)
@@ -26,17 +26,17 @@ async def getClinic(rid, id):
         if clinic is not None:
             logger.debug('%s|Returning cached clinic: %s', rid, clinic)
             return clinic
-        else:
-            clinic = {"id": id}
+
+        clinic = {"id": id}
 
         logger.debug('%s|Getting clinic information for id %d', rid, id)
         status_code, response = await getClinicRequest(id)
-        if(status_code == 200):
+        if status_code == 200:
             clinic = response
             putInCache(id,clinic)
             logger.debug("%s|Clinic information: %s", rid, clinic)
         else:
-            logger.warn("%s|Clinic with id %d was not found, returning only default object", rid, id)
+            logger.warning("%s|Clinic with id %d was not found, returning only default object", rid, id)
     except:
         logger.exception("%s|Error getting clinic, ignoring error", rid)
     return clinic

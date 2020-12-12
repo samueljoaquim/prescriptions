@@ -8,7 +8,8 @@ This is an implementation of the [iClinic Python Challenge](https://github.com/i
 
 ## Build Status
 ![Prescriptions Build](https://github.com/samueljoaquim/prescriptions/workflows/Prescriptions%20Build/badge.svg)
-![Prescriptions Deploy to AWS](https://github.com/samueljoaquim/prescriptions/workflows/Prescriptions%20Deploy%20to%20AWS/badge.svg)
+
+This project uses *Github Actions* for continuous integration. A passing build status means that the code was downloaded, configured from scratch, unit tested (with >= 80% coverage on all services, models and apis) and a Docker image was successfully built.
 
 
 ## Project Structure
@@ -93,13 +94,19 @@ Apart from an unresponsive server, the HTTP statuses returned that will cause a 
 - 503 (*Service Unavailable*)
 - 504 (*Gateway Timeout*)
 
+**PS**: there is a convenience script called *sourceenv.sh* that automatically sets these variables for you. It loads the env vars from the *docker-compose.dev.env* file in the same folder. Just run ```. sourceenv.sh``` and the vars will be set.
+
+
+### Swagger UI / OpenAPI Documentation
+The API was documented with for the Swagger UI. You can try to load it on the [Swagger Editor](https://editor.swagger.io/) by importing this URL: https://raw.githubusercontent.com/samueljoaquim/prescriptions/main/swagger.yml. You can also load this URL in the [Swagger Petstore](https://petstore.swagger.io/).
+
 
 ## Creating the Docker Images
 Before running the service, it is necessary to create a Docker image, which is very straightforward. Please make sure that you have *docker* and *docker-compose* commands installed on you machine before. Then, go to the root of the project in a shell and run:
 ```
 docker build . -t prescriptions
 ```
-Now, the docker image should be locally available as ```prescriptions:latest```.
+Now, the docker image should be locally available with the ```prescriptions:latest``` tag.
 
 
 ## Running the Service
@@ -107,7 +114,7 @@ Once you have the docker image built, you can start a local docker container by 
 ```
 docker-compose up
 ```
-This will bring up not only a *prescriptions* service container (aliased *prescriptionssvc*), but also a *mongodb* container (aliased *prescriptionsdb* in the docker network). All the environment variables are located inside the *docker-compose.dev.env* file, and the database URI (**PRESCRIPTIONS_MONGODB_URI**) is already pointing to this *mongodb* instance. **Make sure that you have no applications running on ports 5000 (prescriptions service) and 27017 (mongodb) before, since those are the default ports.**
+This will bring up not only a *prescriptions* service container (aliased *prescriptionssvc*), but also a *mongodb* container (aliased *prescriptionsdb* in the docker network). All the environment variables are located inside the *docker-compose.dev.env* file, and the database URI (**PRESCRIPTIONS_MONGODB_URI**) is already pointing to this *mongodb* instance. **Make sure that you have no applications running on ports 5000 (prescriptions service) and 27017 (mongodb) before, since those are the default ports the services will bind to.**
 
 If you need to point to another mongodb instance, modify the *docker-compose.dev.env* file with the correct URI. Also, you can remove or comment out the following service from the *docker-compose.yml* file:
 ```
@@ -125,7 +132,7 @@ If you need to point to another mongodb instance, modify the *docker-compose.dev
 ## Making Requests
 Once your service is up and running, you can start making requests to it. You can use a tool like *RESTED* for making sure it's working (available for [Firefox](https://addons.mozilla.org/en-US/firefox/addon/rested/) and [Chrome](https://chrome.google.com/webstore/detail/rested/eelcnbccaccipfolokglfhhmapdchbfg)).
 
-The endpoint will be ```http://127.0.0.1:5000```, and the path ```/prescriptions```. Choose ```POST``` as the method and send a ```Content-Type: application/json``` header. Also, use a ```Custom``` request body with the following contents:
+In *RESTED*, the endpoint will be ```http://127.0.0.1:5000```, and the path ```/prescriptions```. Choose ```POST``` as the method and send a ```Content-Type: application/json``` header. Also, use a ```Custom``` request body with the following contents:
 ```
 {
   "clinic": {
@@ -175,24 +182,6 @@ If the data is being saved correctly, you should see an output like this:
 ## Running Unit Tests With Coverage
 This project uses *nose* for unit testing, along with the *coverage* plugin for it. To execute the tests and get the coverage report, simply run:
 ```
-pipenv run nosetests --with-coverage --cover-package=api,services,models,exceptions
+pipenv run nosetests --with-coverage  --cover-min-percentage=80 --cover-package=api,services,models,exceptions
 ```
-
-Current project coverage report is:
-```
-Name                        Stmts   Miss  Cover
------------------------------------------------
-api.py                         36      1    97%
-exceptions.py                  37      3    92%
-models/__init__.py              0      0   100%
-models/schemas.py               3      0   100%
-models/validators.py           26      0   100%
-services/__init__.py            0      0   100%
-services/clinics.py            38      0   100%
-services/metrics.py            24      0   100%
-services/patients.py           40      0   100%
-services/physicians.py         40      0   100%
-services/prescriptions.py      40      0   100%
------------------------------------------------
-TOTAL                         284      4    99%
-```
+This command will fail if any test fails or if the minimum coverage of 80% is not reached. To check the current coverage report, please refer to the latest Actions build.
